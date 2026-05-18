@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Login | P-rent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --ink:#0b0c0a;--paper:#f5f2ec;--gold:#b8860b;--gold-lt:#d4a820;
+            --gold-dim:rgba(184,134,11,0.13);--card:#161810;--card2:#1c1f14;
+            --border:rgba(255,255,255,0.08);--muted:rgba(245,242,236,0.4);
+            --danger:#e07070;--warning:#e0a050;--success:#5ebd8e;
+            --ff-d:'Cormorant Garamond',Georgia,serif;
+            --ff-s:'Outfit',sans-serif;
+            --trans:0.25s cubic-bezier(.4,0,.2,1);
+        }
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+        html{height:100%;}
+        body{
+            min-height:100%;background:var(--ink);color:var(--paper);
+            font-family:var(--ff-s);font-size:14px;
+            display:grid;grid-template-columns:1fr 1fr;
+        }
+        body::before{
+            content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+            background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+        }
+
+        /* ── LEFT PANEL ── */
+        .left-panel{
+            position:relative;background:var(--card);border-right:1px solid var(--border);
+            display:flex;flex-direction:column;justify-content:space-between;
+            padding:2.5rem;overflow:hidden;min-height:100vh;
+        }
+        .left-panel::before{
+            content:'';position:absolute;inset:0;
+            background-image:linear-gradient(rgba(184,134,11,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(184,134,11,0.06) 1px,transparent 1px);
+            background-size:48px 48px;animation:gridShift 25s linear infinite;
+        }
+        @keyframes gridShift{from{background-position:0 0}to{background-position:0 48px}}
+        .left-panel::after{
+            content:'P';position:absolute;right:-0.05em;bottom:-0.12em;
+            font-family:var(--ff-d);font-size:clamp(14rem,22vw,28rem);
+            font-weight:600;font-style:italic;line-height:1;
+            color:rgba(255,255,255,0.025);pointer-events:none;user-select:none;
+        }
+        .lp-logo{position:relative;z-index:1;font-family:var(--ff-d);font-size:1.85rem;font-weight:600;letter-spacing:0.04em;}
+        .lp-logo span{color:var(--gold);}
+        .lp-content{position:relative;z-index:1;}
+        .lp-eyebrow{display:inline-flex;align-items:center;gap:0.5rem;font-size:0.68rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold-lt);margin-bottom:1rem;}
+        .lp-eyebrow::before{content:'';display:block;width:20px;height:1px;background:var(--gold-lt);}
+        .lp-headline{font-family:var(--ff-d);font-size:clamp(2.4rem,3.5vw,3.8rem);font-weight:300;font-style:italic;line-height:1.1;letter-spacing:-0.3px;color:var(--paper);margin-bottom:1.25rem;}
+        .lp-headline strong{font-style:normal;font-weight:600;color:var(--gold-lt);}
+        .lp-desc{font-size:0.875rem;font-weight:300;color:var(--muted);line-height:1.85;max-width:380px;}
+        .role-cards{position:relative;z-index:1;display:flex;flex-direction:column;gap:0.6rem;margin-top:2rem;}
+        .role-card{display:flex;align-items:center;gap:0.85rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:0.85rem 1rem;cursor:pointer;transition:all var(--trans);}
+        .role-card:hover,.role-card.active{border-color:rgba(184,134,11,0.4);background:var(--gold-dim);}
+        .role-card.active .rc-label{color:var(--gold-lt);}
+        .rc-icon{font-size:1.3rem;flex-shrink:0;}
+        .rc-label{font-size:0.82rem;font-weight:500;color:var(--muted);transition:color var(--trans);}
+        .rc-desc{font-size:0.72rem;color:rgba(245,242,236,0.25);margin-top:0.1rem;}
+        .lp-footer{position:relative;z-index:1;font-size:0.75rem;color:rgba(245,242,236,0.2);}
+
+        /* ── RIGHT FORM PANEL ── */
+        .right-panel{
+            display:flex;align-items:center;justify-content:center;
+            padding:3rem 2rem;min-height:100vh;position:relative;z-index:1;
+        }
+        .form-wrap{width:100%;max-width:400px;animation:fadeUp 0.55s ease both;}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+        /* ── CARD ── */
+        .form-card{background:var(--card2);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+        .form-card::before{content:'';display:block;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-lt),transparent);}
+
+        /* ── ROLE TABS ── */
+        .role-tabs{
+            display:grid;grid-template-columns:1fr 1fr 1fr;
+            background:rgba(255,255,255,0.03);border-bottom:1px solid var(--border);
+            padding:4px;gap:4px;
+        }
+        .rtab{
+            padding:0.55rem 0.25rem;background:transparent;border:none;border-radius:7px;
+            font-family:var(--ff-s);font-size:0.78rem;font-weight:500;color:var(--muted);
+            cursor:pointer;transition:all var(--trans);text-align:center;
+        }
+        .rtab.active{background:var(--gold);color:var(--ink);box-shadow:0 3px 12px rgba(184,134,11,0.25);}
+        .rtab:not(.active):hover{color:var(--paper);background:rgba(255,255,255,0.05);}
+
+        .form-body{padding:1.75rem;}
+        .form-title{font-family:var(--ff-d);font-size:1.35rem;font-weight:600;color:var(--paper);margin-bottom:0.2rem;}
+        .form-sub{font-size:0.78rem;color:var(--muted);font-weight:300;margin-bottom:1.5rem;}
+
+        /* ── FIELDS ── */
+        .field{margin-bottom:1rem;}
+        .field label{display:block;font-size:0.68rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;}
+        .field input,.field select{
+            width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);
+            border-radius:8px;padding:0.68rem 0.9rem;color:var(--paper);font-family:var(--ff-s);
+            font-size:0.875rem;outline:none;transition:border-color var(--trans),box-shadow var(--trans);
+            appearance:none;
+        }
+        .field input::placeholder{color:rgba(245,242,236,0.18);}
+        .field input:focus,.field select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,134,11,0.12);}
+        .field input.err,.field select.err{border-color:var(--danger);box-shadow:0 0 0 3px rgba(224,112,112,0.1);}
+        .field select{
+            background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23b8860b' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat:no-repeat;background-position:right 0.9rem center;
+            padding-right:2.2rem;cursor:pointer;
+        }
+        .field select option{background:#1c1f14;}
+
+        /* password eye */
+        .pw-wrap{position:relative;}
+        .pw-eye{position:absolute;right:0.8rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:0.2rem;display:flex;transition:color var(--trans);}
+        .pw-eye:hover{color:var(--gold-lt);}
+
+        /* error text */
+        .err-msg{font-size:0.78rem;color:var(--danger);margin-bottom:0.75rem;min-height:1.1em;display:none;}
+        .err-msg.show{display:block;}
+
+        /* submit */
+        .submit-btn{
+            width:100%;padding:0.8rem;
+            background:linear-gradient(135deg,var(--gold),#9a700a);
+            color:var(--ink);font-family:var(--ff-s);font-size:0.875rem;font-weight:600;
+            letter-spacing:0.03em;border:none;border-radius:8px;cursor:pointer;
+            transition:opacity var(--trans),transform var(--trans),box-shadow var(--trans);
+        }
+        .submit-btn:hover{opacity:0.88;transform:translateY(-1px);box-shadow:0 8px 24px rgba(184,134,11,0.28);}
+        .submit-btn:active{transform:none;}
+        .submit-btn:disabled{opacity:0.6;pointer-events:none;}
+
+        /* spinner */
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(14,15,13,0.3);border-top-color:var(--ink);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px;}
+
+        /* shake */
+        @keyframes prentShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+        /* hint */
+        .sa-hint{margin-top:1rem;padding:0.75rem 1rem;background:rgba(184,134,11,0.07);border:1px solid rgba(184,134,11,0.15);border-radius:8px;font-size:0.75rem;color:rgba(245,242,236,0.4);line-height:1.6;}
+        .sa-hint strong{color:var(--gold-lt);}
+
+        /* register link */
+        .reg-link{text-align:center;font-size:0.8rem;color:var(--muted);margin-top:1.25rem;font-weight:300;}
+        .reg-link a{color:var(--gold-lt);text-decoration:none;font-weight:500;transition:color var(--trans);}
+        .reg-link a:hover{color:var(--paper);}
+
+        /* ── RESPONSIVE ── */
+        @media(max-width:768px){
+            body{grid-template-columns:1fr;}
+            .left-panel{min-height:auto;padding:2rem 1.5rem 1.5rem;}
+            .left-panel::after{font-size:10rem;}
+            .lp-headline{font-size:2rem;}
+            .role-cards{flex-direction:row;flex-wrap:wrap;}
+            .right-panel{padding:2rem 1.25rem;}
+        }
+        @media(max-width:480px){.role-cards{flex-direction:column;}}
+    </style>
+</head>
+<body>
+
+<!-- ── LEFT INFO PANEL ── -->
+<div class="left-panel">
+    <div class="lp-logo">P<span>-</span>rent</div>
+
+    <div class="lp-content">
+        <div class="lp-eyebrow">Secure Access</div>
+        <h2 class="lp-headline">Welcome<br>to <strong>P-rent</strong></h2>
+        <p class="lp-desc">Sign in to manage your tenancy, track rent payments, or administer your property portfolio.</p>
+
+        <div class="role-cards">
+            <div class="role-card active" data-sync="tenant">
+                <div class="rc-icon">🏠</div>
+                <div><div class="rc-label">Tenant</div><div class="rc-desc">Pay rent &amp; view balance</div></div>
+            </div>
+            <div class="role-card" data-sync="landlord">
+                <div class="rc-icon">🔑</div>
+                <div><div class="rc-label">Landlord</div><div class="rc-desc">Manage your apartment</div></div>
+            </div>
+            <div class="role-card" data-sync="superadmin">
+                <div class="rc-icon">⚙️</div>
+                <div><div class="rc-label">Admin</div><div class="rc-desc">Platform management</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="lp-footer">&copy; 2026 P-rent Apartment Management System</div>
+</div>
+
+<!-- ── RIGHT FORM PANEL ── -->
+<div class="right-panel">
+    <div class="form-wrap">
+        <div class="form-card">
+
+            <!-- Role tabs -->
+            <div class="role-tabs">
+                <button class="rtab active" data-role="tenant">Tenant</button>
+                <button class="rtab"        data-role="landlord">Landlord</button>
+                <button class="rtab"        data-role="superadmin">Admin</button>
+            </div>
+
+            <div class="form-body">
+                <div class="form-title" id="form-title">Tenant Login</div>
+                <div class="form-sub"   id="form-sub">Enter your registered phone number and password.</div>
+
+                <!-- ── TENANT FIELDS ── -->
+                <div id="section-tenant">
+                    <div class="field">
+                        <label for="t-phone">Phone Number</label>
+                        <input type="tel" id="t-phone" placeholder="07XX XXX XXX" autocomplete="tel"/>
+                    </div>
+                    <div class="field">
+                        <label for="t-apartment">Your Apartment</label>
+                        <select id="t-apartment">
+                            <option value="">— Select apartment —</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="t-password">Password</label>
+                        <div class="pw-wrap">
+                            <input type="password" id="t-password" placeholder="Enter your password" autocomplete="current-password"/>
+                            <button type="button" class="pw-eye" data-target="t-password" aria-label="Show password">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── LANDLORD FIELDS ── -->
+                <div id="section-landlord" style="display:none">
+                    <div class="field">
+                        <label for="l-identifier">Phone or Email</label>
+                        <input type="text" id="l-identifier" placeholder="07XX XXX XXX or email" autocomplete="username"/>
+                    </div>
+                    <div class="field">
+                        <label for="l-apartment">Your Apartment</label>
+                        <select id="l-apartment">
+                            <option value="">— Select apartment —</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="l-password">Password</label>
+                        <div class="pw-wrap">
+                            <input type="password" id="l-password" placeholder="Enter your password" autocomplete="current-password"/>
+                            <button type="button" class="pw-eye" data-target="l-password" aria-label="Show password">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── SUPERADMIN FIELDS ── -->
+                <div id="section-superadmin" style="display:none">
+                    <div class="field">
+                        <label for="sa-username">Admin Username</label>
+                        <input type="text" id="sa-username" placeholder="Enter admin username" autocomplete="off"/>
+                    </div>
+                    <div class="field">
+                        <label for="sa-password">Admin Password</label>
+                        <div class="pw-wrap">
+                            <input type="password" id="sa-password" placeholder="Enter admin password" autocomplete="new-password"/>
+                            <button type="button" class="pw-eye" data-target="sa-password" aria-label="Show password">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="sa-hint">
+                        🔒 Restricted to the <strong>platform owner</strong> only.
+                    </div>
+                </div>
+
+                <div class="err-msg" id="error-msg"></div>
+
+                <button class="submit-btn" id="submit-btn">Sign In</button>
+
+                <div class="reg-link">
+                    No account? <a href="register.html">Register here</a>
+                </div>
+            </div><!-- /form-body -->
+        </div><!-- /form-card -->
+    </div><!-- /form-wrap -->
+</div><!-- /right-panel -->
+
+<!-- auth-data.js MUST come first -->
+<script src="js/auth-data.js"></script>
+<script>
+/**
+ * Inline login handler — no separate login.js needed.
+ * All IDs match exactly what is in this HTML file.
+ */
+(function () {
+    'use strict';
+
+    if (typeof AUTH === 'undefined') {
+        document.getElementById('error-msg').textContent = 'Error: auth-data.js failed to load.';
+        document.getElementById('error-msg').style.display = 'block';
+        return;
+    }
+
+    // Already logged in → go home
+    var existing = AUTH.getSession();
+    if (existing) { AUTH.redirectAfterLogin(existing); return; }
+
+    AUTH.seed();
+
+    var currentRole = 'tenant';
+
+    // ── Populate apartment dropdowns ─────────────────────────────────────────
+    function populateApts() {
+        var apts = AUTH.getApartments();
+        var ph   = '<option value="">— Select apartment —</option>';
+        var opts = apts.map(function(a){ return '<option value="'+a.id+'">'+a.name+'</option>'; }).join('');
+        var t = document.getElementById('t-apartment');
+        var l = document.getElementById('l-apartment');
+        if (t) t.innerHTML = ph + opts;
+        if (l) l.innerHTML = ph + opts;
+    }
+
+    // ── Role meta ────────────────────────────────────────────────────────────
+    var ROLE_META = {
+        tenant:     { title:'Tenant Login',       sub:'Enter your registered phone number and password.' },
+        landlord:   { title:'Landlord Login',      sub:'Sign in with your phone or email to manage your apartment.' },
+        superadmin: { title:'Administrator Login', sub:'Platform owner access only.' },
+    };
+
+    // ── Switch role ──────────────────────────────────────────────────────────
+    function switchRole(role) {
+        currentRole = role;
+
+        document.querySelectorAll('.rtab').forEach(function(t){
+            t.classList.toggle('active', t.dataset.role === role);
+        });
+        document.querySelectorAll('.role-card').forEach(function(c){
+            c.classList.toggle('active', c.dataset.sync === role);
+        });
+
+        ['tenant','landlord','superadmin'].forEach(function(r){
+            var s = document.getElementById('section-'+r);
+            if (s) s.style.display = r === role ? 'block' : 'none';
+        });
+
+        var meta = ROLE_META[role] || {};
+        var t = document.getElementById('form-title');
+        var s = document.getElementById('form-sub');
+        if (t) t.textContent = meta.title || '';
+        if (s) s.textContent = meta.sub   || '';
+
+        clearError();
+    }
+
+    // Wire tabs
+    document.querySelectorAll('.rtab').forEach(function(tab){
+        tab.addEventListener('click', function(){ switchRole(tab.dataset.role); });
+    });
+
+    // Wire left-panel cards
+    document.querySelectorAll('.role-card').forEach(function(card){
+        card.addEventListener('click', function(){ switchRole(card.dataset.sync); });
+    });
+
+    // ── Password toggles ─────────────────────────────────────────────────────
+    document.querySelectorAll('.pw-eye').forEach(function(btn){
+        btn.addEventListener('click', function(){
+            var inp = document.getElementById(btn.dataset.target);
+            if (!inp) return;
+            var show = inp.type === 'password';
+            inp.type = show ? 'text' : 'password';
+            btn.innerHTML = show
+                ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+                : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+        });
+    });
+
+    // ── Error helpers ────────────────────────────────────────────────────────
+    function showError(msg) {
+        var e = document.getElementById('error-msg');
+        if (e) { e.textContent = msg; e.classList.add('show'); }
+        var btn = document.getElementById('submit-btn');
+        if (btn) {
+            btn.style.animation = 'none';
+            requestAnimationFrame(function(){ btn.style.animation = 'prentShake 0.4s ease'; });
+        }
+    }
+
+    function clearError() {
+        var e = document.getElementById('error-msg');
+        if (e) { e.textContent = ''; e.classList.remove('show'); }
+    }
+
+    function markErr(id, on) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.classList.toggle('err', on);
+        if (on) el.addEventListener('input', function(){ el.classList.remove('err'); }, { once:true });
+    }
+
+    // Clear on input
+    ['t-phone','t-apartment','t-password','l-identifier','l-apartment','l-password','sa-username','sa-password'].forEach(function(id){
+        var el = document.getElementById(id);
+        if (el) el.addEventListener('input', clearError);
+    });
+
+    // ── Phone normalise ───────────────────────────────────────────────────────
+    function normPhone(raw) {
+        var p = (raw||'').replace(/[\s\-\(\)]/g,'');
+        if (p.startsWith('+254')) p = '0'+p.slice(4);
+        if (p.startsWith('254'))  p = '0'+p.slice(3);
+        return p;
+    }
+    function validPhone(p){ return /^(07|01)\d{8}$/.test(p); }
+
+    var tPhone = document.getElementById('t-phone');
+    if (tPhone) tPhone.addEventListener('blur', function(){ if (tPhone.value) tPhone.value = normPhone(tPhone.value); });
+
+    // ── Loading state ─────────────────────────────────────────────────────────
+    function setLoading(on) {
+        var btn = document.getElementById('submit-btn');
+        if (!btn) return;
+        btn.disabled = on;
+        btn.innerHTML = on ? '<span class="spin"></span>Verifying…' : 'Sign In';
+    }
+
+    // ── Get payload ───────────────────────────────────────────────────────────
+    function getPayload() {
+        clearError();
+        // clear all err classes
+        ['t-phone','t-apartment','t-password','l-identifier','l-apartment','l-password','sa-username','sa-password'].forEach(function(id){
+            var el = document.getElementById(id); if (el) el.classList.remove('err');
+        });
+
+        if (currentRole === 'tenant') {
+            var phone = normPhone((document.getElementById('t-phone')||{}).value||'');
+            var apt   = (document.getElementById('t-apartment')||{}).value||'';
+            var pw    = (document.getElementById('t-password')||{}).value||'';
+            var ok = true;
+            if (!validPhone(phone))  { markErr('t-phone',    true); ok=false; }
+            if (!apt)                { markErr('t-apartment', true); ok=false; }
+            if (!pw)                 { markErr('t-password',  true); ok=false; }
+            if (!ok){ showError('Please fill in all fields correctly.'); return null; }
+            return { role:'tenant', identifier:phone, password:pw, apartment:apt };
+        }
+
+        if (currentRole === 'landlord') {
+            var id2  = ((document.getElementById('l-identifier')||{}).value||'').trim();
+            var apt2 = (document.getElementById('l-apartment')||{}).value||'';
+            var pw2  = (document.getElementById('l-password')||{}).value||'';
+            var ok2 = true;
+            if (!id2)  { markErr('l-identifier', true); ok2=false; }
+            if (!apt2) { markErr('l-apartment',  true); ok2=false; }
+            if (!pw2)  { markErr('l-password',   true); ok2=false; }
+            if (!ok2){ showError('Please fill in all fields correctly.'); return null; }
+            var normId = id2.includes('@') ? id2 : normPhone(id2);
+            return { role:'landlord', identifier:normId, password:pw2, apartment:apt2 };
+        }
+
+        if (currentRole === 'superadmin') {
+            var user = ((document.getElementById('sa-username')||{}).value||'').trim();
+            var pw3  = (document.getElementById('sa-password')||{}).value||'';
+            var ok3 = true;
+            if (!user){ markErr('sa-username', true); ok3=false; }
+            if (!pw3) { markErr('sa-password', true); ok3=false; }
+            if (!ok3){ showError('Please enter your admin credentials.'); return null; }
+            return { role:'superadmin', identifier:user, password:pw3, apartment:null };
+        }
+        return null;
+    }
+
+    // ── Submit ────────────────────────────────────────────────────────────────
+    function handleSubmit(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        var payload = getPayload();
+        if (!payload) return;
+        setLoading(true);
+
+        setTimeout(function(){
+            var result = AUTH.authenticate(payload);
+
+            if (result && result.error === 'pending') {
+                setLoading(false);
+                showError('Hi '+result.name+' — your account is awaiting landlord approval.');
+                return;
+            }
+
+            if (!result) {
+                setLoading(false);
+                var msgs = {
+                    tenant:     'Phone number, apartment, or password is incorrect.',
+                    landlord:   'Credentials not recognised for the selected apartment.',
+                    superadmin: 'Invalid admin username or password.',
+                };
+                showError(msgs[currentRole]||'Login failed. Please try again.');
+                var pwf = {tenant:'t-password',landlord:'l-password',superadmin:'sa-password'};
+                markErr(pwf[currentRole], true);
+                return;
+            }
+
+            // ✓ Success
+            AUTH.redirectAfterLogin(result);
+
+        }, 400);
+    }
+
+    var submitBtn = document.getElementById('submit-btn');
+    if (submitBtn) submitBtn.addEventListener('click', handleSubmit);
+    document.addEventListener('keydown', function(e){ if (e.key==='Enter') handleSubmit(e); });
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    populateApts();
+    switchRole('tenant');
+
+}());
+</script>
+</body>
+</html>
