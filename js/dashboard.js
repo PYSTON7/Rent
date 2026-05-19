@@ -671,3 +671,23 @@ if (document.readyState === 'loading') {
     });
 
 })();
+
+
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import firebaseConfig from './firebase-config.js';
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Example: Adding a new tenant profile directly from the browser
+async function createTenant(tenantData) {
+  try {
+    const docRef = await addDoc(collection(db, "users"), tenantData);
+    console.log("Tenant written with ID: ", docRef.id);
+  } catch (e) {
+    console.error("Error adding tenant: ", e);
+  }
+}

@@ -1,0 +1,45 @@
+
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: Check if the user is logged in
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper: Check if the logged-in user matches the document ID
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // 1. USERS COLLECTION
+    // Profile data for landlords and tenants
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // 2. APARTMENTS / PROPERTIES COLLECTION
+    // Landlords can manage their own properties; Tenants can read available ones
+    match /properties/{propertyId} {
+      allow read: if isSignedIn(); 
+      allow create, update, delete: if isSignedIn() && request.resource.data.landlordId == request.auth.uid;
+    }
+
+    // 3. LEASES / RENTAL AGREEMENTS
+    // Only the specific landlord or tenant involved can see or manage the lease
+    match /leases/{leaseId} {
+      allow read, write: if isSignedIn() && 
+        (request.auth.uid == resource.data.landlordId || request.auth.uid == resource.data.tenantId);
+      allow create: if isSignedIn();
+    }
+
+    // 4. RECEIPTS / PAYMENTS
+    // Only the tenant paying or the landlord receiving can access financial receipts
+    match /receipts/{receiptId} {
+      allow read: if isSignedIn() && 
+        (request.auth.uid == resource.data.landlordId || request.auth.uid == resource.data.tenantId);
+      allow create: if isSignedIn();
+    }
+  }
+}
