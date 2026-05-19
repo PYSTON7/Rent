@@ -1,0 +1,49 @@
+type User @table {
+  email: String!
+  passwordHash: String!
+  role: String!
+  createdAt: Timestamp!
+  firstName: String
+  lastName: String
+  phoneNumber: String
+}
+
+type Property @table {
+  landlord: User!
+  name: String!
+  address: String!
+  createdAt: Timestamp!
+  description: String
+}
+
+type Unit @table {
+  property: Property!
+  unitNumber: String!
+  rentAmount: Float!
+  createdAt: Timestamp!
+  bedrooms: Int
+  bathrooms: Float
+  squareFootage: Int
+  description: String
+}
+
+type Lease @table {
+  unit: Unit!
+  tenant: User!
+  startDate: Date!
+  endDate: Date!
+  monthlyRent: Float!
+  createdAt: Timestamp!
+  depositAmount: Float
+  leaseTerms: String
+}
+
+type Payment @table {
+  lease: Lease!
+  tenant: User!
+  amount: Float!
+  paymentDate: Date!
+  status: String!
+  createdAt: Timestamp!
+  paymentMethod: String
+}

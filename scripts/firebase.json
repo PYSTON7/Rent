@@ -1,0 +1,10 @@
+{
+  "hosting": {
+    "public": "prent-13460",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}

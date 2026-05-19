@@ -1,0 +1,13 @@
+specVersion: "v1"
+serviceId: "prent-13460-service"
+location: "europe-west1"
+schemas:
+  - source: "./schema"
+    datasource:
+      postgresql:
+        database: "prent-13460-database"
+        cloudSql:
+          instanceId: "prent-13460-instance"
+          # schemaValidation: "STRICT"     # STRICT mode makes Postgres schema match Data Connect exactly.
+          # schemaValidation: "COMPATIBLE" # COMPATIBLE mode makes Postgres schema compatible with Data Connect.
+connectorDirs: ["./example"]
