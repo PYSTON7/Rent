@@ -574,62 +574,17 @@
     }
 
     // ── LOGOUT ────────────────────────────────────────────────────────────────
-   // ── LOGOUT SYSTEM ──────────────────────────────────────────────────────────
-
-// ── FIREWALL-PROTECTED LOGOUT SYSTEM ──────────────────────────────────────
-
-// ── LOGOUT CONTROLLER ──────────────────────────────────────────────────────
-
-function initLogout() {
-    console.log("Logout listener bound safely to document root.");
-    
-    document.addEventListener('click', function(e) {
-        // Safe-check both class structures and ID setups dynamically
-        const logoutBtn = e.target.closest('.logout-btn, #logout-btn, #signout-btn, .signout');
-        
-        if (logoutBtn) {
-            e.preventDefault();
-            e.stopPropagation();
-            doLogout();
-        }
-    });
-}
-
-function doLogout() {
-    console.log("Logout execution invoked.");
-    
-    // Safety firewall wrapper against internal module runtime crashes
-    try {
-        if (typeof AUTH !== 'undefined' && typeof AUTH.clearSession === 'function') {
-            AUTH.clearSession();
-            console.log("AUTH engine cache cleared successfully.");
-        } else {
-            console.warn("Global AUTH utility not found. Wiping standard local storages.");
-            localStorage.clear();
-            sessionStorage.clear();
-        }
-    } catch (sessionError) {
-        console.error("Session execution crashed, bypassing to redirect.", sessionError);
-    }
-
-    // Explicit fallback system to handle relative nested path structures
-    try {
+    function handleLogout() {
+        AUTH.clearSession();
         window.location.replace('login.html');
-    } catch (redirectError) {
-        console.warn("Standard replacement failed, trying root absolute path allocation.");
-        window.location.href = './login.html';
     }
-}
 
-// Global script load initializer 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initLogout);
-} else {
-    initLogout();
-}
-
-
-
+    function initLogout() {
+        // Navbar dropdown logout
+        $('ud-logout-btn')?.addEventListener('click', handleLogout);
+        // Sidebar logout section
+        $('logout-btn')?.addEventListener('click', handleLogout);
+    }
 
     // ── MODAL CLOSE ───────────────────────────────────────────────────────────
     $('modal-close')?.addEventListener('click', closeModal);
@@ -671,23 +626,3 @@ if (document.readyState === 'loading') {
     });
 
 })();
-
-
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import firebaseConfig from './firebase-config.js';
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// Example: Adding a new tenant profile directly from the browser
-async function createTenant(tenantData) {
-  try {
-    const docRef = await addDoc(collection(db, "users"), tenantData);
-    console.log("Tenant written with ID: ", docRef.id);
-  } catch (e) {
-    console.error("Error adding tenant: ", e);
-  }
-}

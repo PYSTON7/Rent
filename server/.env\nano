@@ -1,0 +1,12 @@
+FIREBASE_PROJECT_ID='your-project-id'
+FIREBASE_PRIVATE_KEY='your-private-key'
+FIREBASE_CLIENT_EMAIL='your-client-email'
+MPESA_CONSUMER_KEY='your-key'
+MPESA_CONSUMER_SECRET='your-secret'
+MPESA_SHORTCODE='174379'
+MPESA_PASSKEY='your-passkey'
+MPESA_CALLBACK_URL='https://example.com/callback'
+FLUTTERWAVE_SECRET_KEY='FLWSECK_TEST-xxxx'PORT=5000
+MONGODB_URI='mongodb+srv://patrick:RentApp2026@cluster0.5ahdu5c.mongodb.net/prent?retryWrites=true&w=majority'
+JWT_SECRET='your_super_secret_session_token_here_123!'
+NODE_ENV='development'

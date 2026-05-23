@@ -1,3 +1,36 @@
+/**
+ * Import function triggers from their respective submodules:
+ *
+ * const {onCall} = require("firebase-functions/v2/https");
+ * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
+ *
+ * See a full list of supported triggers at https://firebase.google.com/docs/functions
+ */
+require('dotenv').config();
+
+const {setGlobalOptions} = require("firebase-functions");
+const {onRequest} = require("firebase-functions/https");
+const logger = require("firebase-functions/logger");
+
+// For cost control, you can set the maximum number of containers that can be
+// running at the same time. This helps mitigate the impact of unexpected
+// traffic spikes by instead downgrading performance. This limit is a
+// per-function limit. You can override the limit for each function using the
+// `maxInstances` option in the function's options, e.g.
+// `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
+// NOTE: setGlobalOptions does not apply to functions using the v1 API. V1
+// functions should each use functions.runWith({ maxInstances: 10 }) instead.
+// In the v1 API, each function can only serve one request per container, so
+// this will be the maximum concurrent request count.
+setGlobalOptions({ maxInstances: 10 });
+
+// Create and deploy your first functions
+// https://firebase.google.com/docs/functions/get-started
+
+// exports.helloWorld = onRequest((request, response) => {
+//   logger.info("Hello logs!", {structuredData: true});
+//   response.send("Hello from Firebase!");
+// });
 // server/index.js — P-rent Backend API Server
 // Stack: Node.js + Express + MongoDB (Mongoose) + Firebase Admin SDK
 //
@@ -64,9 +97,10 @@ admin.initializeApp({
 });
 
 // ── MONGODB CONNECTION ────────────────────────────────────────────────────────
-mongoose.connect(process.env.MONGODB_URI)
-.then(() => console.log("u2705 MongoDB connected"))
-.catch(err => { console.error("u274c MongoDB error:", err.message); process.exit(1); });
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser:    true,
+    useUnifiedTopology: true,
+})
 .then(() => console.log('✅ MongoDB connected'))
 .catch(err => { console.error('❌ MongoDB error:', err.message); process.exit(1); });
 
@@ -413,9 +447,9 @@ app.patch('/api/tenants/:uid/water', requireAuth, requireRole('landlord','supera
 app.get('/api/health', (req, res) => {
     res.json({
         status:   'ok',
-mongoose.connect(process.env.MONGODB_URI)
-.then(() => console.log("u2705 MongoDB connected"))
-.catch(err => { console.error("u274c MongoDB error:", err.message); process.exit(1); });
+        mongodb:  mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        time:     new Date().toISOString(),
+    });
 });
 
 // ── ERROR HANDLER ─────────────────────────────────────────────────────────────

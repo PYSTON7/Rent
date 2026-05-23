@@ -7,13 +7,19 @@
 //
 // REQUIRES: .env with Firebase credentials
 //           npm install firebase-admin dotenv
-
 'use strict';
 
-const admin = require('firebase-admin');
 const dotenv = require('dotenv');
 dotenv.config();
 
+// 1. Load the environment variables right at the start
+require('dotenv').config(); 
+
+// 2. Import the Firebase Admin SDK pieces
+const admin = require('firebase-admin');
+const { getFirestore } = require('firebase-admin/firestore');
+
+// 3. Initialize the Firebase app using your env variables
 admin.initializeApp({
     credential: admin.credential.cert({
         projectId:   process.env.FIREBASE_PROJECT_ID,
@@ -22,7 +28,25 @@ admin.initializeApp({
     }),
 });
 
+// 4. Safely grab your Firestore database instance
+const db = getFirestore();
+
+// ... the rest of your seeding data and logic goes here ...
+// 1. Initialize the app ONCE with your service account credentials
+admin.initializeApp({
+    credential: admin.credential.cert(require('/home/pystontriplep/rent/server/serviceAccountKey.json'))
+});
+
+// 2. Initialize your services correctly
+const db = getFirestore('prent'); 
+const auth = admin.auth();
+
+// --- YOUR SEEDING LOGIC CONTINUES BELOW HERE ---
+
 const db   = admin.firestore();
+
+db.settings({ databaseId: 'prent' });
+db.settings({ databaseId: 'default' });
 const auth = admin.auth();
 
 // ── SEED DATA ─────────────────────────────────────────────────────────────────

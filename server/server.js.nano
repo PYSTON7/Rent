@@ -64,9 +64,10 @@ admin.initializeApp({
 });
 
 // ── MONGODB CONNECTION ────────────────────────────────────────────────────────
-mongoose.connect(process.env.MONGODB_URI)
-.then(() => console.log("u2705 MongoDB connected"))
-.catch(err => { console.error("u274c MongoDB error:", err.message); process.exit(1); });
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser:    true,
+    useUnifiedTopology: true,
+})
 .then(() => console.log('✅ MongoDB connected'))
 .catch(err => { console.error('❌ MongoDB error:', err.message); process.exit(1); });
 
@@ -413,9 +414,9 @@ app.patch('/api/tenants/:uid/water', requireAuth, requireRole('landlord','supera
 app.get('/api/health', (req, res) => {
     res.json({
         status:   'ok',
-mongoose.connect(process.env.MONGODB_URI)
-.then(() => console.log("u2705 MongoDB connected"))
-.catch(err => { console.error("u274c MongoDB error:", err.message); process.exit(1); });
+        mongodb:  mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        time:     new Date().toISOString(),
+    });
 });
 
 // ── ERROR HANDLER ─────────────────────────────────────────────────────────────
