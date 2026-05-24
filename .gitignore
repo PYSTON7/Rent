@@ -67,3 +67,9 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+mongosh-2.2.6-linux-x64/
+mongosh*/
+*.so
+node_modules/
+.env
+.env.*
