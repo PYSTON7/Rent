@@ -73,3 +73,11 @@ mongosh*/
 node_modules/
 .env
 .env.*
+# SECRET FILES — never commit these
+server/serviceAccountKey.json
+server/.env
+server/.env.*
+server/.env.NANO
+*.env
+*.env.*
+serviceAccountKey.json
