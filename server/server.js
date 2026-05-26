@@ -159,7 +159,7 @@ async function getMpesaToken() {
 
     const creds    = Buffer.from(`${process.env.MPESA_CONSUMER_KEY}:${process.env.MPESA_CONSUMER_SECRET}`).toString('base64');
     const response = await axios.get(
-        'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
+        'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
         // Production: 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
         { headers: { Authorization: `Basic ${creds}` } }
     );

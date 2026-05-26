@@ -201,8 +201,34 @@
 
         /* Card image / colour band */
         .card-visual {
-            height: 160px; position: relative; overflow: hidden;
+            height: 185px; position: relative; overflow: hidden;
             background: linear-gradient(135deg, #1c1e19 0%, #252820 100%);
+            /* Smooth reveal when photo loads */
+            transition: background 0.3s ease;
+        }
+        /* Photo fills the full card visual area */
+        .card-visual img {
+            width: 100%; height: 100%;
+            object-fit: cover; display: block;
+            transition: transform 0.4s ease;
+        }
+        .apt-card:hover .card-visual img {
+            transform: scale(1.04);
+        }
+        /* Keep status badge always visible over photo */
+        .card-visual .status-badge {
+            position: absolute; top: 1rem; left: 1rem; z-index: 2;
+        }
+        /* Dark gradient at bottom of photo for readability */
+        .card-visual::before {
+            content: '';
+            position: absolute; bottom: 0; left: 0; right: 0; height: 60px;
+            background: linear-gradient(to top, rgba(14,15,13,0.7), transparent);
+            z-index: 1; pointer-events: none;
+        }
+        /* Keep grid lines / big-initial visible only when no photo */
+        .card-visual .big-initial, .card-visual .apt-icon {
+            position: absolute; z-index: 0;
         }
         .card-visual::before {
             content: '';
@@ -339,7 +365,7 @@
         .modal-overlay.open .modal { transform: none; }
 
         .modal-top {
-            height: 180px; position: relative; overflow: hidden;
+            height: 220px; position: relative; overflow: hidden;
             background: linear-gradient(135deg, #1c1e19 0%, #252820 100%);
             border-radius: 18px 18px 0 0;
         }
@@ -559,6 +585,7 @@
         <p>&copy; 2026 P-rent Apartment Management System</p>
     </footer>
 
-    <script src="js/apartments.js"></script>
+    <script src="js/auth-data.js" defer></script>
+    <script src="js/apartments.js" defer></script>
 </body>
 </html>

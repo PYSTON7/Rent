@@ -97,6 +97,64 @@
         return Math.round((occupied / apt.totalRooms) * 100);
     }
 
+
+    // ── PHOTO HELPERS ──────────────────────────────────────────────────────────
+    // Reads photos saved by the landlord via apt-photos.js / AptPhotos
+    function getAptPhotoData(aptId) {
+        try {
+            const raw = localStorage.getItem('prent_apt_photos_' + aptId);
+            return raw ? JSON.parse(raw) : { primary: null, gallery: [] };
+        } catch (_) { return { primary: null, gallery: [] }; }
+    }
+
+    function primaryPhotoHTML(aptId, icon, initial, isAvailable) {
+        const data = getAptPhotoData(aptId);
+        if (data.primary) {
+            return `
+                <img
+                    src="${data.primary}"
+                    alt="Apartment photo"
+                    style="width:100%;height:100%;object-fit:cover;display:block;border-radius:0;"
+                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+                />
+                <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:2.8rem;opacity:0.6">
+                    ${icon}
+                </div>
+                <span class="status-badge ${isAvailable ? 'available' : 'full'}" style="position:absolute;top:1rem;left:1rem;">
+                    ${isAvailable ? 'Available' : 'Fully Occupied'}
+                </span>`;
+        }
+        // No photo — show the decorative placeholder
+        return `
+            <span class="big-initial">${initial}</span>
+            <span class="apt-icon">${icon}</span>
+            <span class="status-badge ${isAvailable ? 'available' : 'full'}">
+                ${isAvailable ? 'Available' : 'Fully Occupied'}
+            </span>`;
+    }
+
+    function galleryHTML(aptId) {
+        const data = getAptPhotoData(aptId);
+        if (!data.gallery || data.gallery.length === 0) return '';
+        return `
+            <div class="modal-section-title" style="margin-top:1.25rem">Photos</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:0.6rem;margin-bottom:1.5rem;">
+                ${data.gallery.map((src, i) => `
+                    <div style="
+                        border-radius:8px;overflow:hidden;
+                        border:2px solid ${src === data.primary ? 'var(--gold)' : 'rgba(255,255,255,0.08)'};
+                        aspect-ratio:1;background:#1a1c18;position:relative;
+                    ">
+                        <img src="${src}" alt="Photo ${i+1}"
+                            style="width:100%;height:100%;object-fit:cover;display:block;"
+                            onerror="this.parentNode.style.display='none'"
+                        />
+                        ${src === data.primary ? `<div style="position:absolute;top:4px;left:4px;background:var(--gold);color:var(--ink);font-size:0.6rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:3px;letter-spacing:0.05em;">PRIMARY</div>` : ''}
+                    </div>`
+                ).join('')}
+            </div>`;
+    }
+
     // ── RENDER CARDS ──────────────────────────────────────────────────────────
     function renderCards() {
         const grid    = $('apartments-grid');
@@ -122,11 +180,7 @@
             return `
             <article class="apt-card" data-id="${apt.id}" style="animation-delay:${i * 0.08}s" tabindex="0" role="button" aria-label="View ${apt.name}">
                 <div class="card-visual">
-                    <span class="big-initial">${initial}</span>
-                    <span class="apt-icon">${apt.icon}</span>
-                    <span class="status-badge ${isAvailable ? 'available' : 'full'}">
-                        ${isAvailable ? 'Available' : 'Fully Occupied'}
-                    </span>
+                    ${primaryPhotoHTML(apt.id, apt.icon, initial, isAvailable)}
                 </div>
 
                 <div class="card-body">
@@ -192,7 +246,24 @@
         const isAvailable = apt.availableRooms > 0;
         const pct         = occupancyPct(apt);
 
-        $('modal-initial').textContent = apt.name.charAt(0);
+        // Show primary photo in modal banner if available
+        const aptPhotoData = getAptPhotoData(apt.id);
+        const modalTop     = $('modal-top');
+        if (aptPhotoData.primary && modalTop) {
+            // Replace the decorative background with the real photo
+            modalTop.style.padding = '0';
+            modalTop.style.overflow = 'hidden';
+            modalTop.innerHTML = `
+                <img src="${aptPhotoData.primary}" alt="${apt.name}"
+                    style="width:100%;height:100%;object-fit:cover;display:block;"
+                    onerror="this.style.display='none'"
+                />
+                <button class="modal-close" id="modal-close" aria-label="Close">&#x2715;</button>`;
+            // Re-wire close button since we replaced innerHTML
+            modalTop.querySelector('#modal-close')?.addEventListener('click', closeModal);
+        } else {
+            $('modal-initial').textContent = apt.name.charAt(0);
+        }
 
         $('modal-body').innerHTML = `
             <span class="modal-badge ${isAvailable ? 'available' : 'full'}">
@@ -234,6 +305,7 @@
                 `).join('')}
             </div>
 
+            ${galleryHTML(apt.id)}
             <div class="modal-section-title">Room Status</div>
             <div class="rooms-list">
                 ${apt.rooms.map(r => `
@@ -318,6 +390,14 @@
         initToolbar();
         initModalClose();
         handleDeepLink();
+
+        // Re-render cards when a landlord uploads/changes apartment photos
+        // (fires when photo is saved from landlord-dashboard in another tab)
+        window.addEventListener('storage', e => {
+            if (e.key && e.key.startsWith('prent_apt_photos_')) {
+                renderCards();
+            }
+        });
     }
 
     if (document.readyState === 'loading') {
